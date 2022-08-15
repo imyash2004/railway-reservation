@@ -1,0 +1,107 @@
+import mysql.connector as sqltor
+import platform 
+pnrno=1024
+import pandas as pd 
+mydb=sqltor.connect(host='localhost',user='root',passwd='vaibhav',database='railway',auth_plugin='mysql_native_password')
+cursor=mydb.cursor(buffered=True)
+print(mydb) 
+def railresmenu():
+    print('railway reservation')
+    print('1.Train detail')
+    print('2.reservation of ticket')
+    print('3.cancellation of tickets')
+    print("4.display pnr status")
+    print('5.quit')
+    n=int(input('enter choice'))
+    if n==1:
+        traindetail()
+    elif n==2:
+        reservation()
+    elif n==3:
+        cancel()
+    elif n==4:
+        displaypnr
+    elif n==5:
+        exit(0)
+    else:
+        print('wrong choice')
+def traindetail():
+    ch='y'
+    while(ch=='y'):
+        name=input('enter train name:')
+        tnum=int(input('enter trai num:'))
+        ac1=int (input('enter num of ac1 class seats:'))
+        ac2=int (input('enter num of ac2 class seats: '))
+        slp=int( input('enter num of sleeper class seats:'))
+        x='''insert into tdetail values(%s,%s,%s,%s,%s)'''
+        train=(name,tnum,ac1,ac2,slp)
+        mydb.commit()
+        print('insertion completed')
+        print('do you want to inser more train detail')
+        ch=input('yes/no')
+    print('\n'*10)
+    print('==========================================================')
+def reservation():
+    pname=input("enter passenger name:")
+    age=int(input("enter age of passenger:"))
+    tno=int(input('enter train number:'))
+    np=int(input("enter no of passenger:"))
+    adharno=input("enter passenger adhar no:")
+    print("select class in which you want to travel in:")
+    print("1.ac first class:")
+    print("2.ac second class")
+    print("3.sleeper class:")
+    cp=int(input("enter your choice:"))
+    if cp==1:
+        amount=np*1000
+        cl="ac1"
+    elif cp==2:
+        amount=np*800
+        cl="ac2"
+    elif cp==3:
+        amount=np*350
+        cl="slp"
+    else:
+        print("wrong choice")
+    print('total amount to be paid:',amount)
+  #  pnrno=pnrno+1
+    pnrno=1024  
+    print("pnr no:",pnrno)
+    print("status confirmed:")
+    status="confirmed"
+    #x="insert into passenger values(%s,%s,%s,%s,%s,%s,%s,%s)"
+    #train1=(pname,age,tno,adharno,cl,amount,status,pnrno,np2)
+    x="insert into passenger values('{}',{},{},'{}','{}',{},'{}',{},{});".format(pname,age,tno,adharno,cl,amount,status,pnrno,np)
+    cursor.execute(x) 
+    mydb.commit()
+    
+    print("insertion completed")
+    print("go back to menu:")
+    print("\n"*10)
+    print("==============================================================")
+def cancel():
+    print('ticket cancel window: ')
+    pnrno=int(input('enter pnr for cancellation of ticket:'))
+    pn=(pnrno,)
+    x="update passenger set status='deleted' where pnrno=%s"
+    cursor.execute(x,pn)
+    mydb.commit()
+    print('deletion completed')
+    print("go back to menu:")
+    print("\n"*10)
+    print("==============================================================")
+def displaypnr():
+    print("pnr status window")
+    pnr=int(input('enter pnrnum:'))
+    pn=(pnrno,)
+    x="select*from passenger where pnrno=%s"
+    cursor.execute(x,pn)
+    res=cursor.fetchall()
+    print("pnr status are as follows:")
+    print("(pname,age,tno,np,adharno,cls,amount,status,pnrno)")
+    for i in res:
+        print(i)
+    print("go back to menu:")
+    print("\n"*10)
+    print("==============================================================")
+railresmenu()
